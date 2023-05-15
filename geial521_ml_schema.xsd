@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:complexType name="map_object">
+        <xs:sequence>
+            <xs:element name="description" type="xs:string"/>
+            <xs:element name="coordinate" type="xs:int" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:int" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="coordinate">
+        <xs:sequence>
+            <xs:element name="x" type="xs:double" minOccurs="0"/>
+            <xs:element name="y" type="xs:double" minOccurs="0"/>
+            <xs:element name="format" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:int" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="component_type">
+        <xs:sequence>
+            <xs:element name="type" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:int" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="cage">
+        <xs:sequence>
+            <xs:element name="cage_number" type="xs:string"/>
+            <xs:element name="component_type" type="xs:int"/>
+            <xs:element name="connected_ring_id" type="xs:int"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:int" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="ring">
+        <xs:sequence>
+            <xs:element name="serial_number" type="xs:string"/>
+            <xs:element name="radius" type="xs:double"/>
+            <xs:element name="connected_cage_id" type="xs:int"/>
+            <xs:element name="component_type" type="xs:int"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:int" use="required"/>
+    </xs:complexType>
+        
+    <xs:complexType name="buoy">
+        <xs:sequence>
+            <xs:element name="description" type="xs:string"/>
+            <xs:element name="component_type" type="xs:int"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:int" use="required"/>
+    </xs:complexType>
+        
+    <xs:element name="map">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="map_objects">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="map_object" type="map_object" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="coordinates">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="coordinate_element" type="coordinate"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="component_types">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="component_type_element" type="component_type"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="cages">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="cage_element" type="cage"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="rings">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="ring_element" type="ring"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="buoys">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="buoy_element" type="buoy"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+        <!-- map_object <> coordinate -->
+        <xs:key name="PK1">
+            <xs:selector xpath="map_objects/map_object"/>
+            <xs:field xpath="@coordinate"/>
+        </xs:key>
+        <xs:keyref refer="PK1" name="FK1">
+            <xs:selector xpath="coordinates/coordinate"/>
+            <xs:field xpath="@id"/>
+        </xs:keyref>
+        <!-- component_type <> cage -->
+        <xs:key name="PK2">
+            <xs:selector xpath="component_types/component_type"/>
+            <xs:field xpath="@type"/>
+        </xs:key>
+        <xs:keyref refer="PK2" name="FK2">
+            <xs:selector xpath="cages/cage_element/cage"/>
+            <xs:field xpath="@component_type"/>
+        </xs:keyref>
+        <!-- cage <> ring -->
+        <xs:key name="PK3">
+            <xs:selector xpath="cages/cage"/>
+            <xs:field xpath="@connected_ring_id"/>
+        </xs:key>
+        <xs:keyref refer="PK3" name="FK3">
+            <xs:selector xpath="rings/ring"/>
+            <xs:field xpath="@connected_cage_id"/>
+        </xs:keyref>
+        <!-- component_type <> buoy -->
+        <xs:key name="PK4">
+            <xs:selector xpath="component_types/component_type"/>
+            <xs:field xpath="@type"/>
+        </xs:key>
+        <xs:keyref refer="PK4" name="FK4">
+            <xs:selector xpath="buoys/buoy"/>
+            <xs:field xpath="@component_type"/>
+        </xs:keyref>
+        <!-- component_type <> ring -->
+        <xs:key name="PK5">
+            <xs:selector xpath="component_types/component_type"/>
+            <xs:field xpath="@type"/>
+        </xs:key>
+        <xs:keyref refer="PK5" name="FK5">
+            <xs:selector xpath="rings/ring"/>
+            <xs:field xpath="@component_type"/>
+        </xs:keyref>
+    </xs:element>
+</xs:schema>
